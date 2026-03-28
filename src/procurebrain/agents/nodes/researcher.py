@@ -12,6 +12,7 @@ class ResearcherNode(BaseAgentNode):
         prompt = (
             f"Research plan:\n{state.get('plan', '')}\n\n"
             f"Retrieved context:\n{state.get('retrieved_context', '')}\n\n"
+            f"Search results summary:\n{state.get('search_results', [])}\n\n"
             "Produce normalized research notes grounded in the retrieved evidence."
         )
         state["research_notes"] = await self.run_prompt("researcher_node", prompt)

@@ -13,6 +13,7 @@ class WriterNode(BaseAgentNode):
             f"Conversation buffer:\n{state.get('conversation_buffer', '')}\n\n"
             f"Analysis:\n{state.get('analysis', '')}\n\n"
             f"Retrieved context:\n{state.get('retrieved_context', '')}\n\n"
+            f"Refined question:\n{state.get('refined_question', state.get('query', ''))}\n\n"
             "Write the final grounded response."
         )
         state["response"] = await self.run_prompt("writer_node", prompt)

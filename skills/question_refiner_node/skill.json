@@ -1,0 +1,10 @@
+{
+  "name": "question_refiner_node",
+  "version": "0.1.0",
+  "description": "Refines user questions into targeted search-oriented research prompts.",
+  "tags": ["langgraph", "node", "refinement"],
+  "compatible_agents": ["question_refiner_node", "planner_node", "supervisor"],
+  "allowed_tools": [],
+  "priority": 8,
+  "enabled": true
+}

@@ -1,8 +1,8 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
+from procurebrain.application.orchestrators.research_orchestrator import ResearchOrchestrator
+from procurebrain.application.services.context_engineering import ContextEngineeringService
 from procurebrain.application.services.model_router import ModelRouter
-from procurebrain.application.services.retrieval_service import RetrievalService
-from procurebrain.memory.buffer import LangChainBufferMemoryService
 from procurebrain.domain.chat.entities import ChatMessage
 from procurebrain.skills.service import SkillService
 
@@ -12,13 +12,13 @@ class ChatOrchestrator:
         self,
         model_router: ModelRouter,
         skill_service: SkillService,
-        retrieval_service: RetrievalService,
-        buffer_memory: LangChainBufferMemoryService,
+        context_engineering: ContextEngineeringService,
+        research_orchestrator: ResearchOrchestrator | None = None,
     ) -> None:
         self.model_router = model_router
         self.skill_service = skill_service
-        self.retrieval_service = retrieval_service
-        self.buffer_memory = buffer_memory
+        self.context_engineering = context_engineering
+        self.research_orchestrator = research_orchestrator
 
     async def generate_assistant_reply(
         self,
@@ -28,43 +28,101 @@ class ChatOrchestrator:
         provider: str | None = None,
         model: str | None = None,
     ) -> tuple[str, str, str]:
+        if self._should_run_research_flow(query=query) and self.research_orchestrator is not None:
+            research_response = await self._try_research_flow(
+                chat_id=chat_id,
+                history=history,
+                query=query,
+                provider=provider,
+                model=model,
+            )
+            if research_response is not None:
+                return research_response
+
         selection = self.model_router.resolve(provider=provider, model=model)
         chat_model = self.model_router.build_chat_model(
             provider=selection.provider,
             model=selection.model,
         )
+        context_bundle = self.context_engineering.build_context_bundle(
+            chat_id=chat_id,
+            query=query,
+            history=history,
+        )
         prompt_messages = [SystemMessage(content=self.skill_service.build_node_prompt("supervisor_node"))]
-        conversation_buffer = self.buffer_memory.build_transcript(history)
-        if conversation_buffer:
+        if context_bundle.conversation_buffer:
             prompt_messages.append(
                 SystemMessage(
-                    content=f"Short-term conversation memory:\n{conversation_buffer}"
+                    content=f"Short-term conversation memory:\n{context_bundle.conversation_buffer}"
                 )
             )
-        retrieval_context = self._build_retrieval_context(query=query, chat_id=chat_id)
-        if retrieval_context:
-            prompt_messages.append(SystemMessage(content=retrieval_context))
+        if context_bundle.compressed_summary:
+            prompt_messages.append(
+                SystemMessage(content=f"Compressed context summary:\n{context_bundle.compressed_summary}")
+            )
+        if context_bundle.retrieved_context:
+            prompt_messages.append(
+                SystemMessage(
+                    content=(
+                        "Use the following retrieved source context when it is relevant.\n"
+                        "Cite or reference source titles when making concrete claims.\n"
+                        f"{context_bundle.retrieved_context}"
+                    )
+                )
+            )
         prompt_messages.extend(self._history_to_langchain_messages(history))
 
         response = await chat_model.ainvoke(prompt_messages)
         content = self._normalize_content(response.content)
         return content, selection.provider, selection.model
 
-    def _build_retrieval_context(self, query: str, chat_id: str) -> str:
-        chunks = self.retrieval_service.retrieve_for_chat(query=query, chat_id=chat_id, limit=5)
-        if not chunks:
-            return ""
+    async def _try_research_flow(
+        self,
+        chat_id: str,
+        history: list[ChatMessage],
+        query: str,
+        provider: str | None = None,
+        model: str | None = None,
+    ) -> tuple[str, str, str] | None:
+        try:
+            context_bundle = self.context_engineering.build_context_bundle(
+                chat_id=chat_id,
+                query=query,
+                history=history,
+            )
+            state = await self.research_orchestrator.run(
+                chat_id=chat_id,
+                query=query,
+                conversation_buffer=context_bundle.conversation_buffer,
+            )
+            response = (state.get("response") or "").strip()
+            if response:
+                selection = self.model_router.resolve(provider=provider, model=model)
+                return response, selection.provider, selection.model
+            return None
+        except Exception:
+            return None
 
-        lines = [
-            "Use the following retrieved source context when it is relevant.",
-            "Cite or reference source titles when making concrete claims.",
+    def _should_run_research_flow(self, query: str) -> bool:
+        lowered = query.lower()
+        research_signals = [
+            "research",
+            "analyze",
+            "analysis",
+            "compare",
+            "market",
+            "trend",
+            "procurement",
+            "supplier",
+            "vendor",
+            "technology",
+            "report",
+            "find",
+            "search",
+            "news",
+            "explain",
         ]
-        for index, chunk in enumerate(chunks, start=1):
-            lines.append(f"[Source {index}] {chunk.title}")
-            if chunk.uri:
-                lines.append(f"URI: {chunk.uri}")
-            lines.append(chunk.content)
-        return "\n".join(lines)
+        return any(signal in lowered for signal in research_signals) or len(query.split()) > 8
 
     def _history_to_langchain_messages(self, history: list[ChatMessage]) -> list:
         messages = []

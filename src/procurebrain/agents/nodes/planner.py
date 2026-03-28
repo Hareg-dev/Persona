@@ -10,7 +10,7 @@ class PlannerNode(BaseAgentNode):
 
     async def run(self, state: AgentGraphState) -> AgentGraphState:
         prompt = (
-            f"User query:\n{state.get('query', '')}\n\n"
+            f"User query:\n{state.get('refined_question', state.get('query', ''))}\n\n"
             f"Conversation buffer:\n{state.get('conversation_buffer', '')}\n\n"
             "Create a clear research plan for the next nodes."
         )

@@ -1,0 +1,10 @@
+{
+  "name": "knowledge_graph_builder",
+  "version": "0.1.0",
+  "description": "Extracts research entities and relationships into graph-friendly structures.",
+  "tags": ["knowledge-graph", "entities", "relationships"],
+  "compatible_agents": ["analyst_node", "researcher_node", "supervisor_node"],
+  "allowed_tools": [],
+  "priority": 28,
+  "enabled": true
+}

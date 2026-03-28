@@ -1,0 +1,10 @@
+{
+  "name": "media_output",
+  "version": "0.1.0",
+  "description": "Prepares research outputs for markdown, diagrams, graph images, and speech generation.",
+  "tags": ["media", "markdown", "audio", "visualization"],
+  "compatible_agents": ["writer_node", "supervisor_node"],
+  "allowed_tools": [],
+  "priority": 48,
+  "enabled": true
+}

@@ -6,6 +6,9 @@ class AgentGraphState(TypedDict, total=False):
     query: str
     conversation_buffer: str
     retrieved_context: str
+    refined_question: str
+    refined_queries: list[str]
+    search_results: list[dict]
     plan: str
     research_notes: str
     analysis: str

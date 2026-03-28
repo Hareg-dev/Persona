@@ -1,0 +1,10 @@
+{
+  "name": "mindmap_builder",
+  "version": "0.1.0",
+  "description": "Creates hierarchical mindmaps from research outputs and linked concepts.",
+  "tags": ["mindmap", "hierarchy", "research"],
+  "compatible_agents": ["writer_node", "analyst_node", "supervisor_node"],
+  "allowed_tools": [],
+  "priority": 45,
+  "enabled": true
+}

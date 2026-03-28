@@ -1,0 +1,10 @@
+{
+  "name": "deep_agent_supervisor",
+  "version": "0.1.0",
+  "description": "Coordinates future delegated sub-agents for deeper long-running research tasks.",
+  "tags": ["subagents", "deep-agents", "orchestration"],
+  "compatible_agents": ["supervisor_node"],
+  "allowed_tools": [],
+  "priority": 4,
+  "enabled": true
+}
