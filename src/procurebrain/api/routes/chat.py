@@ -11,8 +11,8 @@ from procurebrain.application.use_cases.send_message import SendMessageUseCase
 from procurebrain.domain.chat.schemas import (
     ChatHistoryResponse,
     ChatSessionResponse,
+    ChatTurnResponse,
     CreateChatRequest,
-    MessageResponse,
     SendMessageRequest,
 )
 
@@ -35,10 +35,10 @@ async def get_chat_history(
     return await use_case.execute(chat_id)
 
 
-@router.post("/{chat_id}/messages", response_model=MessageResponse, status_code=201)
+@router.post("/{chat_id}/messages", response_model=ChatTurnResponse, status_code=201)
 async def send_message(
     chat_id: str,
     request: SendMessageRequest,
     use_case: SendMessageUseCase = Depends(get_send_message_use_case),
-) -> MessageResponse:
+) -> ChatTurnResponse:
     return await use_case.execute(chat_id, request)

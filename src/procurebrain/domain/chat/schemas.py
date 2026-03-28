@@ -35,6 +35,11 @@ class MessageResponse(BaseModel):
     created_at: datetime
 
 
+class ChatTurnResponse(BaseModel):
+    user_message: MessageResponse
+    assistant_message: MessageResponse | None = None
+
+
 class ChatHistoryResponse(BaseModel):
     chat: ChatSessionResponse
     messages: list[MessageResponse]
