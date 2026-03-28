@@ -1,6 +1,7 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from procurebrain.application.services.model_router import ModelRouter
+from procurebrain.application.services.retrieval_service import RetrievalService
 from procurebrain.domain.chat.entities import ChatMessage
 from procurebrain.skills.service import SkillService
 
@@ -10,13 +11,16 @@ class ChatOrchestrator:
         self,
         model_router: ModelRouter,
         skill_service: SkillService,
+        retrieval_service: RetrievalService,
     ) -> None:
         self.model_router = model_router
         self.skill_service = skill_service
+        self.retrieval_service = retrieval_service
 
     async def generate_assistant_reply(
         self,
         history: list[ChatMessage],
+        query: str,
         provider: str | None = None,
         model: str | None = None,
     ) -> tuple[str, str, str]:
@@ -26,11 +30,30 @@ class ChatOrchestrator:
             model=selection.model,
         )
         prompt_messages = [SystemMessage(content=self.skill_service.build_agent_prompt("supervisor"))]
+        retrieval_context = self._build_retrieval_context(query)
+        if retrieval_context:
+            prompt_messages.append(SystemMessage(content=retrieval_context))
         prompt_messages.extend(self._history_to_langchain_messages(history))
 
         response = await chat_model.ainvoke(prompt_messages)
         content = self._normalize_content(response.content)
         return content, selection.provider, selection.model
+
+    def _build_retrieval_context(self, query: str) -> str:
+        chunks = self.retrieval_service.retrieve(query=query, limit=5)
+        if not chunks:
+            return ""
+
+        lines = [
+            "Use the following retrieved source context when it is relevant.",
+            "Cite or reference source titles when making concrete claims.",
+        ]
+        for index, chunk in enumerate(chunks, start=1):
+            lines.append(f"[Source {index}] {chunk.title}")
+            if chunk.uri:
+                lines.append(f"URI: {chunk.uri}")
+            lines.append(chunk.content)
+        return "\n".join(lines)
 
     def _history_to_langchain_messages(self, history: list[ChatMessage]) -> list:
         messages = []

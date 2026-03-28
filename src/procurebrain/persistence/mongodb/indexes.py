@@ -1,5 +1,5 @@
 from procurebrain.persistence.mongodb.client import get_database
-from procurebrain.persistence.mongodb.collections import CHAT_SESSIONS, MESSAGES
+from procurebrain.persistence.mongodb.collections import CHAT_SESSIONS, MESSAGES, SOURCES
 
 
 async def ensure_indexes() -> None:
@@ -8,3 +8,5 @@ async def ensure_indexes() -> None:
     await db[CHAT_SESSIONS].create_index("user_id")
     await db[MESSAGES].create_index("chat_id")
     await db[MESSAGES].create_index("created_at")
+    await db[SOURCES].create_index("chat_id")
+    await db[SOURCES].create_index("source_type")

@@ -52,6 +52,7 @@ class SendMessageUseCase:
             history = await self.message_repository.list_by_chat_id(chat_id)
             reply_content, provider_name, model_name = await self.chat_orchestrator.generate_assistant_reply(
                 history=history,
+                query=request.content,
                 provider=request.provider,
                 model=request.model,
             )

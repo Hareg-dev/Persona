@@ -43,6 +43,18 @@ class ModelRouter:
 
         raise ValueError(f"Unsupported model provider: {selection.provider}")
 
+    def build_embedding_model(self, provider: str | None = None, model: str | None = None) -> Any:
+        selection = self.resolve(provider=provider, model=model)
+
+        if selection.provider == "openai":
+            from langchain_openai import OpenAIEmbeddings
+
+            return OpenAIEmbeddings(model=model or settings.embedding_model_name, api_key=settings.openai_api_key)
+
+        raise ValueError(
+            "Embedding model support is currently implemented for the OpenAI provider only."
+        )
+
     def _default_model_for_provider(self, provider: str) -> str:
         defaults = {
             "openai": settings.openai_model_name,

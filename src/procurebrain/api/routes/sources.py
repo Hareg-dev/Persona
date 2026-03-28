@@ -1,13 +1,24 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from procurebrain.api.deps import get_ingest_pdf_use_case, get_ingest_url_use_case
+from procurebrain.application.use_cases.ingest_pdf import IngestPdfUseCase
+from procurebrain.application.use_cases.ingest_url import IngestUrlUseCase
+from procurebrain.domain.sources.schemas import IngestPdfRequest, IngestUrlRequest, SourceResponse
 
 router = APIRouter()
 
 
-@router.post("/url")
-def ingest_url() -> dict[str, str]:
-    return {"message": "ingest_url placeholder"}
+@router.post("/url", response_model=SourceResponse, status_code=201)
+async def ingest_url(
+    request: IngestUrlRequest,
+    use_case: IngestUrlUseCase = Depends(get_ingest_url_use_case),
+) -> SourceResponse:
+    return await use_case.execute(request)
 
 
-@router.post("/pdf")
-def ingest_pdf() -> dict[str, str]:
-    return {"message": "ingest_pdf placeholder"}
+@router.post("/pdf", response_model=SourceResponse, status_code=201)
+async def ingest_pdf(
+    request: IngestPdfRequest,
+    use_case: IngestPdfUseCase = Depends(get_ingest_pdf_use_case),
+) -> SourceResponse:
+    return await use_case.execute(request)

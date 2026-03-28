@@ -13,12 +13,13 @@ class Settings(BaseSettings):
     openai_model_name: str = "gpt-4o-mini"
     gemini_model_name: str = "gemini-1.5-flash"
     groq_model_name: str = "llama-3.1-70b-versatile"
+    embedding_provider: str = "openai"
+    embedding_model_name: str = "text-embedding-3-small"
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "procurebrain"
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str = ""
     qdrant_collection: str = "procurebrain-knowledge"
-    embedding_model_name: str = "text-embedding-3-small"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
