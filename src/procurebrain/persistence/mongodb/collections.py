@@ -1,0 +1,7 @@
+CHAT_SESSIONS = "chat_sessions"
+MESSAGES = "messages"
+AGENT_RUNS = "agent_runs"
+SOURCES = "sources"
+DOCUMENTS = "documents"
+BRIEFS = "briefs"
+TRACKED_TOPICS = "tracked_topics"

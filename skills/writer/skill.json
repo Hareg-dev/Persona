@@ -1,0 +1,10 @@
+{
+  "name": "writer",
+  "version": "0.1.0",
+  "description": "Writes a structured market intelligence response.",
+  "tags": ["reporting", "response"],
+  "compatible_agents": ["writer", "supervisor"],
+  "allowed_tools": [],
+  "priority": 40,
+  "enabled": true
+}

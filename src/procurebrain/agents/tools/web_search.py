@@ -1,0 +1,1 @@
+"""Public web search tool."""

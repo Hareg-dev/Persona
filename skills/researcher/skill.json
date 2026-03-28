@@ -1,0 +1,10 @@
+{
+  "name": "researcher",
+  "version": "0.1.0",
+  "description": "Collects evidence from public sites and PDFs.",
+  "tags": ["retrieval", "sources"],
+  "compatible_agents": ["researcher", "supervisor"],
+  "allowed_tools": ["url_reader", "pdf_reader", "web_search"],
+  "priority": 20,
+  "enabled": true
+}

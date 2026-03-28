@@ -1,0 +1,44 @@
+from fastapi import APIRouter, Depends
+
+from procurebrain.api.deps import (
+    get_chat_history_use_case,
+    get_create_chat_use_case,
+    get_send_message_use_case,
+)
+from procurebrain.application.use_cases.create_chat import CreateChatUseCase
+from procurebrain.application.use_cases.get_chat_history import GetChatHistoryUseCase
+from procurebrain.application.use_cases.send_message import SendMessageUseCase
+from procurebrain.domain.chat.schemas import (
+    ChatHistoryResponse,
+    ChatSessionResponse,
+    CreateChatRequest,
+    MessageResponse,
+    SendMessageRequest,
+)
+
+router = APIRouter()
+
+
+@router.post("", response_model=ChatSessionResponse, status_code=201)
+async def create_chat(
+    request: CreateChatRequest,
+    use_case: CreateChatUseCase = Depends(get_create_chat_use_case),
+) -> ChatSessionResponse:
+    return await use_case.execute(request)
+
+
+@router.get("/{chat_id}", response_model=ChatHistoryResponse)
+async def get_chat_history(
+    chat_id: str,
+    use_case: GetChatHistoryUseCase = Depends(get_chat_history_use_case),
+) -> ChatHistoryResponse:
+    return await use_case.execute(chat_id)
+
+
+@router.post("/{chat_id}/messages", response_model=MessageResponse, status_code=201)
+async def send_message(
+    chat_id: str,
+    request: SendMessageRequest,
+    use_case: SendMessageUseCase = Depends(get_send_message_use_case),
+) -> MessageResponse:
+    return await use_case.execute(chat_id, request)

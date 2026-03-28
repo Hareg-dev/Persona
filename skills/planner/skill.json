@@ -1,0 +1,10 @@
+{
+  "name": "planner",
+  "version": "0.1.0",
+  "description": "Turns a vague topic into a focused research plan.",
+  "tags": ["planning", "research"],
+  "compatible_agents": ["planner", "supervisor"],
+  "allowed_tools": [],
+  "priority": 10,
+  "enabled": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "analyst",
+  "version": "0.1.0",
+  "description": "Interprets evidence through a procurement lens.",
+  "tags": ["analysis", "procurement"],
+  "compatible_agents": ["analyst", "supervisor"],
+  "allowed_tools": ["source_ranker"],
+  "priority": 30,
+  "enabled": true
+}

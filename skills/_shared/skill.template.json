@@ -1,0 +1,10 @@
+{
+  "name": "example_skill",
+  "version": "0.1.0",
+  "description": "Describe what this skill does.",
+  "tags": ["example"],
+  "compatible_agents": ["planner"],
+  "allowed_tools": [],
+  "priority": 100,
+  "enabled": true
+}

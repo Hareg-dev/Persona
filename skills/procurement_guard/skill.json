@@ -1,0 +1,10 @@
+{
+  "name": "procurement_guard",
+  "version": "0.1.0",
+  "description": "Checks whether outputs are grounded and procurement-relevant.",
+  "tags": ["guardrail", "validation"],
+  "compatible_agents": ["analyst", "writer", "supervisor"],
+  "allowed_tools": [],
+  "priority": 50,
+  "enabled": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "supervisor",
+  "version": "0.1.0",
+  "description": "Coordinates agents and checks for completeness.",
+  "tags": ["supervision", "control"],
+  "compatible_agents": ["supervisor"],
+  "allowed_tools": [],
+  "priority": 5,
+  "enabled": true
+}
