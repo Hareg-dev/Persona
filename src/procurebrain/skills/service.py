@@ -12,3 +12,6 @@ class SkillService:
 
     def build_agent_prompt(self, agent_name: str) -> str:
         return compose_agent_prompt(agent_name, self.registry.by_agent(agent_name))
+
+    def build_node_prompt(self, node_name: str) -> str:
+        return self.build_agent_prompt(node_name)

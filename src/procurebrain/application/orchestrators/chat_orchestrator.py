@@ -2,6 +2,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from procurebrain.application.services.model_router import ModelRouter
 from procurebrain.application.services.retrieval_service import RetrievalService
+from procurebrain.memory.buffer import LangChainBufferMemoryService
 from procurebrain.domain.chat.entities import ChatMessage
 from procurebrain.skills.service import SkillService
 
@@ -12,13 +13,16 @@ class ChatOrchestrator:
         model_router: ModelRouter,
         skill_service: SkillService,
         retrieval_service: RetrievalService,
+        buffer_memory: LangChainBufferMemoryService,
     ) -> None:
         self.model_router = model_router
         self.skill_service = skill_service
         self.retrieval_service = retrieval_service
+        self.buffer_memory = buffer_memory
 
     async def generate_assistant_reply(
         self,
+        chat_id: str,
         history: list[ChatMessage],
         query: str,
         provider: str | None = None,
@@ -29,8 +33,15 @@ class ChatOrchestrator:
             provider=selection.provider,
             model=selection.model,
         )
-        prompt_messages = [SystemMessage(content=self.skill_service.build_agent_prompt("supervisor"))]
-        retrieval_context = self._build_retrieval_context(query)
+        prompt_messages = [SystemMessage(content=self.skill_service.build_node_prompt("supervisor_node"))]
+        conversation_buffer = self.buffer_memory.build_transcript(history)
+        if conversation_buffer:
+            prompt_messages.append(
+                SystemMessage(
+                    content=f"Short-term conversation memory:\n{conversation_buffer}"
+                )
+            )
+        retrieval_context = self._build_retrieval_context(query=query, chat_id=chat_id)
         if retrieval_context:
             prompt_messages.append(SystemMessage(content=retrieval_context))
         prompt_messages.extend(self._history_to_langchain_messages(history))
@@ -39,8 +50,8 @@ class ChatOrchestrator:
         content = self._normalize_content(response.content)
         return content, selection.provider, selection.model
 
-    def _build_retrieval_context(self, query: str) -> str:
-        chunks = self.retrieval_service.retrieve(query=query, limit=5)
+    def _build_retrieval_context(self, query: str, chat_id: str) -> str:
+        chunks = self.retrieval_service.retrieve_for_chat(query=query, chat_id=chat_id, limit=5)
         if not chunks:
             return ""
 

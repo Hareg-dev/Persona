@@ -1,0 +1,10 @@
+{
+  "name": "supervisor_node",
+  "version": "0.1.0",
+  "description": "LangGraph supervisor node instructions for flow control and completion checks.",
+  "tags": ["langgraph", "node", "supervision"],
+  "compatible_agents": ["supervisor_node", "supervisor"],
+  "allowed_tools": [],
+  "priority": 6,
+  "enabled": true
+}

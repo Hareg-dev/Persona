@@ -1,0 +1,10 @@
+{
+  "name": "planner_node",
+  "version": "0.1.0",
+  "description": "LangGraph planner node instructions for objective clarification and research planning.",
+  "tags": ["langgraph", "node", "planning"],
+  "compatible_agents": ["planner_node", "planner", "supervisor"],
+  "allowed_tools": [],
+  "priority": 12,
+  "enabled": true
+}

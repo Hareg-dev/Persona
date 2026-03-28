@@ -1,0 +1,10 @@
+{
+  "name": "analyst_node",
+  "version": "0.1.0",
+  "description": "LangGraph analyst node instructions for procurement-focused synthesis.",
+  "tags": ["langgraph", "node", "analysis"],
+  "compatible_agents": ["analyst_node", "analyst", "supervisor"],
+  "allowed_tools": ["source_ranker"],
+  "priority": 32,
+  "enabled": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "researcher_node",
+  "version": "0.1.0",
+  "description": "LangGraph researcher node instructions for evidence collection and source grounding.",
+  "tags": ["langgraph", "node", "research"],
+  "compatible_agents": ["researcher_node", "researcher", "supervisor"],
+  "allowed_tools": ["url_reader", "pdf_reader", "web_search"],
+  "priority": 22,
+  "enabled": true
+}

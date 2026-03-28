@@ -4,6 +4,7 @@ from procurebrain.ingestion.pdf.chunker import TextChunker
 from procurebrain.ingestion.web.extractor import WebExtractor
 from procurebrain.ingestion.web.fetcher import WebFetcher
 from procurebrain.ingestion.web.normalizer import WebNormalizer
+from procurebrain.memory.artifacts import ArtifactStore
 from procurebrain.persistence.repositories.source_repository import SourceRepository
 from procurebrain.vectorstore.qdrant.embeddings import EmbeddingService
 from procurebrain.vectorstore.qdrant.retriever import QdrantRetriever
@@ -20,6 +21,7 @@ class IngestUrlUseCase:
         text_chunker: TextChunker,
         embedding_service: EmbeddingService,
         retriever: QdrantRetriever,
+        artifact_store: ArtifactStore,
     ) -> None:
         self.source_repository = source_repository
         self.source_domain_service = source_domain_service
@@ -29,6 +31,7 @@ class IngestUrlUseCase:
         self.text_chunker = text_chunker
         self.embedding_service = embedding_service
         self.retriever = retriever
+        self.artifact_store = artifact_store
 
     async def execute(self, request: IngestUrlRequest) -> SourceResponse:
         html = await self.web_fetcher.fetch_text(str(request.url))
@@ -52,6 +55,14 @@ class IngestUrlUseCase:
             chunks=chunks,
             vectors=vectors,
             uri=saved.uri,
+            chat_id=saved.chat_id,
+        )
+        self.artifact_store.save_source(
+            source_id=saved.id or "",
+            title=saved.title,
+            content=saved.content,
+            chat_id=saved.chat_id,
+            metadata={"uri": saved.uri, **(saved.metadata or {})},
         )
 
         return SourceResponse(

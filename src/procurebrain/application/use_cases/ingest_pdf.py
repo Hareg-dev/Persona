@@ -5,6 +5,7 @@ from procurebrain.domain.sources.service import SourceDomainService
 from procurebrain.ingestion.pdf.chunker import TextChunker
 from procurebrain.ingestion.pdf.loader import PdfLoader
 from procurebrain.ingestion.pdf.parser import PdfParser
+from procurebrain.memory.artifacts import ArtifactStore
 from procurebrain.persistence.repositories.source_repository import SourceRepository
 from procurebrain.vectorstore.qdrant.embeddings import EmbeddingService
 from procurebrain.vectorstore.qdrant.retriever import QdrantRetriever
@@ -20,6 +21,7 @@ class IngestPdfUseCase:
         text_chunker: TextChunker,
         embedding_service: EmbeddingService,
         retriever: QdrantRetriever,
+        artifact_store: ArtifactStore,
     ) -> None:
         self.source_repository = source_repository
         self.source_domain_service = source_domain_service
@@ -28,6 +30,7 @@ class IngestPdfUseCase:
         self.text_chunker = text_chunker
         self.embedding_service = embedding_service
         self.retriever = retriever
+        self.artifact_store = artifact_store
 
     async def execute(self, request: IngestPdfRequest) -> SourceResponse:
         payload = self.pdf_loader.read_bytes(request.file_path)
@@ -51,6 +54,14 @@ class IngestPdfUseCase:
             chunks=chunks,
             vectors=vectors,
             uri=saved.uri,
+            chat_id=saved.chat_id,
+        )
+        self.artifact_store.save_source(
+            source_id=saved.id or "",
+            title=saved.title,
+            content=saved.content,
+            chat_id=saved.chat_id,
+            metadata={"uri": saved.uri, **(saved.metadata or {})},
         )
 
         return SourceResponse(

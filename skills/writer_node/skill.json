@@ -1,0 +1,10 @@
+{
+  "name": "writer_node",
+  "version": "0.1.0",
+  "description": "LangGraph writer node instructions for final grounded responses.",
+  "tags": ["langgraph", "node", "writing"],
+  "compatible_agents": ["writer_node", "writer", "supervisor"],
+  "allowed_tools": [],
+  "priority": 42,
+  "enabled": true
+}

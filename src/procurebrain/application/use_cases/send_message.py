@@ -4,6 +4,7 @@ from procurebrain.domain.chat.entities import utc_now
 from procurebrain.application.orchestrators.chat_orchestrator import ChatOrchestrator
 from procurebrain.domain.chat.schemas import ChatTurnResponse, MessageResponse, SendMessageRequest
 from procurebrain.domain.chat.service import ChatDomainService
+from procurebrain.memory.artifacts import ArtifactStore
 from procurebrain.persistence.repositories.chat_repository import ChatRepository
 from procurebrain.persistence.repositories.message_repository import MessageRepository
 
@@ -15,11 +16,13 @@ class SendMessageUseCase:
         message_repository: MessageRepository,
         domain_service: ChatDomainService,
         chat_orchestrator: ChatOrchestrator,
+        artifact_store: ArtifactStore,
     ) -> None:
         self.chat_repository = chat_repository
         self.message_repository = message_repository
         self.domain_service = domain_service
         self.chat_orchestrator = chat_orchestrator
+        self.artifact_store = artifact_store
 
     async def execute(self, chat_id: str, request: SendMessageRequest) -> ChatTurnResponse:
         chat = await self.chat_repository.get_by_id(chat_id)
@@ -46,11 +49,19 @@ class SendMessageUseCase:
             model=saved.model,
             created_at=saved.created_at,
         )
+        self.artifact_store.save_message(
+            chat_id=chat_id,
+            role=user_response.role,
+            content=user_response.content,
+            message_id=user_response.id,
+            metadata={"provider": user_response.provider, "model": user_response.model},
+        )
         assistant_response: MessageResponse | None = None
 
         if request.role == "user":
             history = await self.message_repository.list_by_chat_id(chat_id)
             reply_content, provider_name, model_name = await self.chat_orchestrator.generate_assistant_reply(
+                chat_id=chat_id,
                 history=history,
                 query=request.content,
                 provider=request.provider,
@@ -72,6 +83,16 @@ class SendMessageUseCase:
                 provider=saved_assistant.provider,
                 model=saved_assistant.model,
                 created_at=saved_assistant.created_at,
+            )
+            self.artifact_store.save_message(
+                chat_id=chat_id,
+                role=assistant_response.role,
+                content=assistant_response.content,
+                message_id=assistant_response.id,
+                metadata={
+                    "provider": assistant_response.provider,
+                    "model": assistant_response.model,
+                },
             )
 
         await self.chat_repository.touch(chat_id, utc_now())

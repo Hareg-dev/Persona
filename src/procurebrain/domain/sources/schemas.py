@@ -30,3 +30,4 @@ class RetrievedChunkResponse(BaseModel):
     content: str
     score: float | None = None
     uri: str | None = None
+    chat_id: str | None = None

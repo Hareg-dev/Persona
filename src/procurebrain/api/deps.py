@@ -14,6 +14,8 @@ from procurebrain.ingestion.pdf.parser import PdfParser
 from procurebrain.ingestion.web.extractor import WebExtractor
 from procurebrain.ingestion.web.fetcher import WebFetcher
 from procurebrain.ingestion.web.normalizer import WebNormalizer
+from procurebrain.memory.artifacts import ArtifactStore
+from procurebrain.memory.buffer import LangChainBufferMemoryService
 from procurebrain.persistence.repositories.chat_repository import ChatRepository
 from procurebrain.persistence.repositories.message_repository import MessageRepository
 from procurebrain.persistence.repositories.source_repository import SourceRepository
@@ -47,6 +49,7 @@ def get_chat_orchestrator() -> ChatOrchestrator:
         model_router=get_model_router(),
         skill_service=get_skill_service(),
         retrieval_service=get_retrieval_service(),
+        buffer_memory=get_buffer_memory_service(),
     )
 
 
@@ -97,6 +100,14 @@ def get_retrieval_service() -> RetrievalService:
     )
 
 
+def get_buffer_memory_service() -> LangChainBufferMemoryService:
+    return LangChainBufferMemoryService()
+
+
+def get_artifact_store() -> ArtifactStore:
+    return ArtifactStore()
+
+
 def get_create_chat_use_case() -> CreateChatUseCase:
     return CreateChatUseCase(
         chat_repository=get_chat_repository(),
@@ -110,6 +121,7 @@ def get_send_message_use_case() -> SendMessageUseCase:
         message_repository=get_message_repository(),
         domain_service=get_chat_domain_service(),
         chat_orchestrator=get_chat_orchestrator(),
+        artifact_store=get_artifact_store(),
     )
 
 
@@ -130,6 +142,7 @@ def get_ingest_url_use_case() -> IngestUrlUseCase:
         text_chunker=get_text_chunker(),
         embedding_service=get_embedding_service(),
         retriever=get_qdrant_retriever(),
+        artifact_store=get_artifact_store(),
     )
 
 
@@ -142,4 +155,5 @@ def get_ingest_pdf_use_case() -> IngestPdfUseCase:
         text_chunker=get_text_chunker(),
         embedding_service=get_embedding_service(),
         retriever=get_qdrant_retriever(),
+        artifact_store=get_artifact_store(),
     )
