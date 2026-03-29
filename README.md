@@ -484,12 +484,30 @@ Current configuration includes support for:
 
 This repository is still in scaffold stage, but the intended local setup is:
 
-1. Create a virtual environment
-2. Install dependencies from `pyproject.toml`
+1. Create a Python `3.11` environment
+2. Install dependencies
 3. Copy `.env.example` to `.env`
 4. Set your API keys and database values
 5. Start MongoDB and Qdrant
 6. Run the API server
+
+### Recommended `uv` workflow
+
+Use `uv` as the default environment manager for this project.
+
+```powershell
+uv python install 3.11
+uv venv --python 3.11
+.venv\Scripts\activate
+uv pip install -r requirements.txt
+uv pip install -r requirements-dev.txt
+```
+
+If you want to run directly with `uv`, you can also use:
+
+```powershell
+uv run uvicorn procurebrain.main:app --reload
+```
 
 Example development command:
 
@@ -500,6 +518,13 @@ python -m uvicorn procurebrain.main:app --reload
 There is also a helper script at:
 
 - [scripts/dev.ps1](C:\Users\DABC\Desktop\Learning\python\ProcureBrainv1\scripts\dev.ps1)
+
+### Requirements files
+
+If you prefer simple requirements over editable installs, use:
+
+- [requirements.txt](C:\Users\DABC\Desktop\Learning\python\ProcureBrainv1\requirements.txt)
+- [requirements-dev.txt](C:\Users\DABC\Desktop\Learning\python\ProcureBrainv1\requirements-dev.txt)
 
 ## Docker
 

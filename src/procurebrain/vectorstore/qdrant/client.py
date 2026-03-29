@@ -9,6 +9,8 @@ from procurebrain.core.exceptions import VectorStoreError
 
 @lru_cache(maxsize=1)
 def get_qdrant_client() -> QdrantClient:
+    if settings.qdrant_url.lower() == "local":
+        return QdrantClient(path=settings.qdrant_path)
     return QdrantClient(
         url=settings.qdrant_url,
         api_key=settings.qdrant_api_key or None,

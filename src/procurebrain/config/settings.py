@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "procurebrain"
     qdrant_url: str = "http://localhost:6333"
+    qdrant_path: str = "./data/qdrant-local"
     qdrant_api_key: str = ""
     qdrant_collection: str = "procurebrain-knowledge"
 
