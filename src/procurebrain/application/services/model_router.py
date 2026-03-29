@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from procurebrain.config.settings import settings
+from procurebrain.core.exceptions import ModelProviderError
 
 
 @dataclass(slots=True)
@@ -24,22 +25,28 @@ class ModelRouter:
         selection = self.resolve(provider=provider, model=model)
 
         if selection.provider == "openai":
-            from langchain_openai import ChatOpenAI
-
-            return ChatOpenAI(model=selection.model, api_key=settings.openai_api_key)
+            try:
+                from langchain_openai import ChatOpenAI
+                return ChatOpenAI(model=selection.model, api_key=settings.openai_api_key)
+            except Exception as exc:  # noqa: BLE001
+                raise ModelProviderError(f"OpenAI model setup failed: {exc}") from exc
 
         if selection.provider in {"google", "gemini"}:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-
-            return ChatGoogleGenerativeAI(
-                model=selection.model,
-                google_api_key=settings.google_api_key,
-            )
+            try:
+                from langchain_google_genai import ChatGoogleGenerativeAI
+                return ChatGoogleGenerativeAI(
+                    model=selection.model,
+                    google_api_key=settings.google_api_key,
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise ModelProviderError(f"Gemini model setup failed: {exc}") from exc
 
         if selection.provider == "groq":
-            from langchain_groq import ChatGroq
-
-            return ChatGroq(model=selection.model, api_key=settings.groq_api_key)
+            try:
+                from langchain_groq import ChatGroq
+                return ChatGroq(model=selection.model, api_key=settings.groq_api_key)
+            except Exception as exc:  # noqa: BLE001
+                raise ModelProviderError(f"Groq model setup failed: {exc}") from exc
 
         raise ValueError(f"Unsupported model provider: {selection.provider}")
 
@@ -47,9 +54,14 @@ class ModelRouter:
         selection = self.resolve(provider=provider, model=model)
 
         if selection.provider == "openai":
-            from langchain_openai import OpenAIEmbeddings
-
-            return OpenAIEmbeddings(model=model or settings.embedding_model_name, api_key=settings.openai_api_key)
+            try:
+                from langchain_openai import OpenAIEmbeddings
+                return OpenAIEmbeddings(
+                    model=model or settings.embedding_model_name,
+                    api_key=settings.openai_api_key,
+                )
+            except Exception as exc:  # noqa: BLE001
+                raise ModelProviderError(f"OpenAI embeddings setup failed: {exc}") from exc
 
         raise ValueError(
             "Embedding model support is currently implemented for the OpenAI provider only."
@@ -65,3 +77,23 @@ class ModelRouter:
         if provider not in defaults:
             raise ValueError(f"Unsupported model provider: {provider}")
         return defaults[provider]
+
+    def provider_status(self) -> dict[str, dict[str, str | bool]]:
+        return {
+            "openai": {
+                "configured": bool(settings.openai_api_key),
+                "default_model": settings.openai_model_name,
+            },
+            "gemini": {
+                "configured": bool(settings.google_api_key),
+                "default_model": settings.gemini_model_name,
+            },
+            "groq": {
+                "configured": bool(settings.groq_api_key),
+                "default_model": settings.groq_model_name,
+            },
+            "embedding": {
+                "configured": settings.embedding_provider == "openai" and bool(settings.openai_api_key),
+                "default_model": settings.embedding_model_name,
+            },
+        }

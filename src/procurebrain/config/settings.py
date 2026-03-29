@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_host: str = "127.0.0.1"
     app_port: int = 8000
+    cache_ttl_seconds: int = 3600
     openai_api_key: str = ""
     google_api_key: str = ""
     groq_api_key: str = ""

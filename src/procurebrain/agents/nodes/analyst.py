@@ -12,7 +12,9 @@ class AnalystNode(BaseAgentNode):
         prompt = (
             f"User query:\n{state.get('refined_question', state.get('query', ''))}\n\n"
             f"Research notes:\n{state.get('research_notes', '')}\n\n"
-            "Analyze the findings through a procurement and business lens."
+            "Analyze the findings through a procurement and business lens.\n"
+            "Use clear sections with these exact headers when relevant:\n"
+            "Findings:\nRisks:\nOpportunities:\nRecommendations:\nMarket:\nTechnology:"
         )
         state["analysis"] = await self.run_prompt("analyst_node", prompt)
         return state

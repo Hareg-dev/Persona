@@ -1,3 +1,5 @@
+import logging
+
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from procurebrain.application.orchestrators.research_orchestrator import ResearchOrchestrator
@@ -15,6 +17,7 @@ class ChatOrchestrator:
         context_engineering: ContextEngineeringService,
         research_orchestrator: ResearchOrchestrator | None = None,
     ) -> None:
+        self.logger = logging.getLogger(__name__)
         self.model_router = model_router
         self.skill_service = skill_service
         self.context_engineering = context_engineering
@@ -37,6 +40,7 @@ class ChatOrchestrator:
                 model=model,
             )
             if research_response is not None:
+                self.logger.info("Answered via research workflow for chat_id=%s", chat_id)
                 return research_response
 
         selection = self.model_router.resolve(provider=provider, model=model)
@@ -74,6 +78,7 @@ class ChatOrchestrator:
 
         response = await chat_model.ainvoke(prompt_messages)
         content = self._normalize_content(response.content)
+        self.logger.info("Answered via direct supervisor path for chat_id=%s", chat_id)
         return content, selection.provider, selection.model
 
     async def _try_research_flow(
@@ -101,6 +106,7 @@ class ChatOrchestrator:
                 return response, selection.provider, selection.model
             return None
         except Exception:
+            self.logger.exception("Research workflow failed for chat_id=%s", chat_id)
             return None
 
     def _should_run_research_flow(self, query: str) -> bool:

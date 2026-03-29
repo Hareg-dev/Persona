@@ -12,3 +12,8 @@ def get_mongo_client() -> AsyncIOMotorClient:
 
 def get_database() -> AsyncIOMotorDatabase:
     return get_mongo_client()[settings.mongodb_db_name]
+
+
+async def ping_mongo() -> bool:
+    result = await get_database().command("ping")
+    return bool(result.get("ok"))

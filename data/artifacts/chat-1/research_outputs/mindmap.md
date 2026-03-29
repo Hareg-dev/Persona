@@ -1,0 +1,5 @@
+# Research Mindmap
+## Analysis
+- REFINED_QUESTION: Procurement technology trends
+- SEARCH_QUERIES:
+- procurement technology trends

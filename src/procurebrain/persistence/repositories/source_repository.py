@@ -24,6 +24,25 @@ class SourceRepository:
         source.id = str(result.inserted_id)
         return source
 
+    async def get_by_uri(self, uri: str, chat_id: str | None = None) -> SourceRecord | None:
+        query: dict = {"uri": uri}
+        if chat_id is not None:
+            query["chat_id"] = chat_id
+        document = await self.collection.find_one(query)
+        if document is None:
+            return None
+        return SourceRecord(
+            id=str(document["_id"]),
+            source_type=document["source_type"],
+            title=document["title"],
+            content=document["content"],
+            uri=document.get("uri"),
+            chat_id=document.get("chat_id"),
+            metadata=document.get("metadata", {}),
+            created_at=document["created_at"],
+            updated_at=document["updated_at"],
+        )
+
     async def get_by_id(self, source_id: str) -> SourceRecord | None:
         document = await self.collection.find_one({"_id": ObjectId(source_id)})
         if document is None:

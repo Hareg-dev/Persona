@@ -1,6 +1,7 @@
 from procurebrain.agents.tools.web_search import WebSearchTool
 from procurebrain.application.orchestrators.chat_orchestrator import ChatOrchestrator
 from procurebrain.application.orchestrators.research_orchestrator import ResearchOrchestrator
+from procurebrain.application.services.analysis_structuring import AnalysisStructuringService
 from procurebrain.application.services.context_engineering import ContextEngineeringService
 from procurebrain.application.services.knowledge_graph_service import KnowledgeGraphService
 from procurebrain.application.services.media_output_service import MediaOutputService
@@ -24,6 +25,7 @@ from procurebrain.ingestion.web.normalizer import WebNormalizer
 from procurebrain.memory.artifacts import ArtifactStore
 from procurebrain.memory.buffer import LangChainBufferMemoryService
 from procurebrain.persistence.repositories.chat_repository import ChatRepository
+from procurebrain.persistence.repositories.knowledge_graph_repository import KnowledgeGraphRepository
 from procurebrain.persistence.repositories.message_repository import MessageRepository
 from procurebrain.persistence.repositories.source_repository import SourceRepository
 from procurebrain.skills.service import SkillService
@@ -118,6 +120,10 @@ def get_context_engineering_service() -> ContextEngineeringService:
     )
 
 
+def get_analysis_structuring_service() -> AnalysisStructuringService:
+    return AnalysisStructuringService(model_router=get_model_router())
+
+
 def get_knowledge_graph_service() -> KnowledgeGraphService:
     return KnowledgeGraphService()
 
@@ -136,6 +142,10 @@ def get_buffer_memory_service() -> LangChainBufferMemoryService:
 
 def get_artifact_store() -> ArtifactStore:
     return ArtifactStore()
+
+
+def get_knowledge_graph_repository() -> KnowledgeGraphRepository:
+    return KnowledgeGraphRepository()
 
 
 def get_create_chat_use_case() -> CreateChatUseCase:
@@ -205,7 +215,9 @@ def get_research_orchestrator() -> ResearchOrchestrator:
         retriever=get_qdrant_retriever(),
         artifact_store=get_artifact_store(),
         context_engineering=get_context_engineering_service(),
+        analysis_structuring=get_analysis_structuring_service(),
         knowledge_graph_service=get_knowledge_graph_service(),
+        knowledge_graph_repository=get_knowledge_graph_repository(),
         mindmap_service=get_mindmap_service(),
         media_output_service=get_media_output_service(),
     )
