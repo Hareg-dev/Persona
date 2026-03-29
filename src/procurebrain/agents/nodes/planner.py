@@ -14,5 +14,10 @@ class PlannerNode(BaseAgentNode):
             f"Conversation buffer:\n{state.get('conversation_buffer', '')}\n\n"
             "Create a clear research plan for the next nodes."
         )
-        state["plan"] = await self.run_prompt("planner_node", prompt)
+        state["plan"] = await self.run_prompt(
+            "planner_node",
+            prompt,
+            provider=state.get("provider"),
+            model=state.get("model"),
+        )
         return state

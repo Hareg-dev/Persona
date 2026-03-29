@@ -19,7 +19,12 @@ class QuestionRefinerNode(BaseAgentNode):
             "- query 1\n"
             "- query 2"
         )
-        raw = await self.run_prompt("question_refiner_node", prompt)
+        raw = await self.run_prompt(
+            "question_refiner_node",
+            prompt,
+            provider=state.get("provider"),
+            model=state.get("model"),
+        )
         refined_question, refined_queries = self._parse_output(raw, fallback=state.get("query", ""))
         state["refined_question"] = refined_question
         state["refined_queries"] = refined_queries

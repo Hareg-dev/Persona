@@ -25,6 +25,7 @@ class SearchResultResponse(BaseModel):
 
 class ResearchArtifactPathsResponse(BaseModel):
     research_brief: str | None = None
+    research_pdf: str | None = None
     mindmap_markdown: str | None = None
     mindmap_mermaid: str | None = None
     knowledge_graph_chart: str | None = None

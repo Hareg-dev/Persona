@@ -4,6 +4,8 @@ from typing import TypedDict
 class AgentGraphState(TypedDict, total=False):
     chat_id: str
     query: str
+    provider: str
+    model: str
     conversation_buffer: str
     retrieved_context: str
     refined_question: str

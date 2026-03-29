@@ -1,0 +1,7 @@
+{
+  "provider": "gemini",
+  "model": "gemini-1.5-flash",
+  "export_format": "markdown",
+  "include_audio": false,
+  "include_images": false
+}

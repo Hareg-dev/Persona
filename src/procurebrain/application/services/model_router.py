@@ -12,6 +12,20 @@ class ModelSelection:
 
 
 class ModelRouter:
+    def resolve_for_runtime_choice(
+        self,
+        choice: str | None = None,
+        model: str | None = None,
+    ) -> ModelSelection:
+        normalized = (choice or "auto_best").lower()
+        if normalized != "auto_best":
+            return self.resolve(provider=normalized, model=model)
+
+        for provider in self._runtime_priority():
+            if self._is_provider_configured(provider):
+                return self.resolve(provider=provider, model=model)
+        return self.resolve(provider=settings.default_model_provider, model=model)
+
     def resolve(
         self,
         provider: str | None = None,
@@ -77,6 +91,18 @@ class ModelRouter:
         if provider not in defaults:
             raise ValueError(f"Unsupported model provider: {provider}")
         return defaults[provider]
+
+    def _runtime_priority(self) -> list[str]:
+        return ["gemini", "openai", "groq"]
+
+    def _is_provider_configured(self, provider: str) -> bool:
+        if provider == "openai":
+            return bool(settings.openai_api_key)
+        if provider in {"google", "gemini"}:
+            return bool(settings.google_api_key)
+        if provider == "groq":
+            return bool(settings.groq_api_key)
+        return False
 
     def provider_status(self) -> dict[str, dict[str, str | bool]]:
         return {

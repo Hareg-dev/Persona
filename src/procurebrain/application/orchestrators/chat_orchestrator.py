@@ -107,6 +107,8 @@ class ChatOrchestrator:
                 chat_id=chat_id,
                 query=query,
                 conversation_buffer=context_bundle.conversation_buffer,
+                provider=provider,
+                model=model,
             )
             response = (state.get("response") or "").strip()
             if response:

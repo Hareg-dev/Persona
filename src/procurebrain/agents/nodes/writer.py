@@ -16,5 +16,10 @@ class WriterNode(BaseAgentNode):
             f"Refined question:\n{state.get('refined_question', state.get('query', ''))}\n\n"
             "Write the final grounded response."
         )
-        state["response"] = await self.run_prompt("writer_node", prompt)
+        state["response"] = await self.run_prompt(
+            "writer_node",
+            prompt,
+            provider=state.get("provider"),
+            model=state.get("model"),
+        )
         return state

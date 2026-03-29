@@ -15,5 +15,10 @@ class ResearcherNode(BaseAgentNode):
             f"Search results summary:\n{state.get('search_results', [])}\n\n"
             "Produce normalized research notes grounded in the retrieved evidence."
         )
-        state["research_notes"] = await self.run_prompt("researcher_node", prompt)
+        state["research_notes"] = await self.run_prompt(
+            "researcher_node",
+            prompt,
+            provider=state.get("provider"),
+            model=state.get("model"),
+        )
         return state

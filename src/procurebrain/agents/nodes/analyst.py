@@ -16,5 +16,10 @@ class AnalystNode(BaseAgentNode):
             "Use clear sections with these exact headers when relevant:\n"
             "Findings:\nRisks:\nOpportunities:\nRecommendations:\nMarket:\nTechnology:"
         )
-        state["analysis"] = await self.run_prompt("analyst_node", prompt)
+        state["analysis"] = await self.run_prompt(
+            "analyst_node",
+            prompt,
+            provider=state.get("provider"),
+            model=state.get("model"),
+        )
         return state

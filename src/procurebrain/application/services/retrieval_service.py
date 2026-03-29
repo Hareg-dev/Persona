@@ -1,3 +1,5 @@
+import logging
+
 from procurebrain.domain.sources.schemas import RetrievedChunkResponse
 from procurebrain.vectorstore.qdrant.embeddings import EmbeddingService
 from procurebrain.vectorstore.qdrant.retriever import QdrantRetriever
@@ -9,6 +11,7 @@ class RetrievalService:
         embedding_service: EmbeddingService,
         retriever: QdrantRetriever,
     ) -> None:
+        self.logger = logging.getLogger(__name__)
         self.embedding_service = embedding_service
         self.retriever = retriever
 
@@ -21,8 +24,16 @@ class RetrievalService:
         chat_id: str | None,
         limit: int = 5,
     ) -> list[RetrievedChunkResponse]:
-        query_vector = self.embedding_service.embed_query(query)
-        results = self.retriever.search(query_vector=query_vector, limit=limit, chat_id=chat_id)
+        try:
+            query_vector = self.embedding_service.embed_query(query)
+            results = self.retriever.search(query_vector=query_vector, limit=limit, chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            self.logger.warning(
+                "Retrieval skipped because embeddings or vector search failed for chat_id=%s error=%s",
+                chat_id,
+                exc,
+            )
+            return []
         return [
             RetrievedChunkResponse(
                 source_id=item["source_id"],

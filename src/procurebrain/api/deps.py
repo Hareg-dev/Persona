@@ -8,10 +8,12 @@ from procurebrain.application.services.media_output_service import MediaOutputSe
 from procurebrain.application.services.mindmap_service import MindmapService
 from procurebrain.application.services.model_router import ModelRouter
 from procurebrain.application.services.retrieval_service import RetrievalService
+from procurebrain.application.use_cases.assistant_ask import AssistantAskUseCase
 from procurebrain.application.use_cases.create_chat import CreateChatUseCase
 from procurebrain.application.use_cases.get_chat_history import GetChatHistoryUseCase
 from procurebrain.application.use_cases.ingest_pdf import IngestPdfUseCase
 from procurebrain.application.use_cases.ingest_url import IngestUrlUseCase
+from procurebrain.application.use_cases.list_chats import ListChatsUseCase
 from procurebrain.application.use_cases.run_research_brief import RunResearchBriefUseCase
 from procurebrain.application.use_cases.send_message import SendMessageUseCase
 from procurebrain.domain.chat.service import ChatDomainService
@@ -169,6 +171,23 @@ def get_chat_history_use_case() -> GetChatHistoryUseCase:
     return GetChatHistoryUseCase(
         chat_repository=get_chat_repository(),
         message_repository=get_message_repository(),
+    )
+
+
+def get_list_chats_use_case() -> ListChatsUseCase:
+    return ListChatsUseCase(chat_repository=get_chat_repository())
+
+
+def get_assistant_ask_use_case() -> AssistantAskUseCase:
+    return AssistantAskUseCase(
+        chat_repository=get_chat_repository(),
+        message_repository=get_message_repository(),
+        domain_service=get_chat_domain_service(),
+        research_orchestrator=get_research_orchestrator(),
+        artifact_store=get_artifact_store(),
+        model_router=get_model_router(),
+        buffer_memory=get_buffer_memory_service(),
+        media_output_service=get_media_output_service(),
     )
 
 

@@ -77,13 +77,22 @@ class ResearchOrchestrator:
         self.media_output_service = media_output_service
         self.graph = self._build_graph()
 
-    async def run(self, chat_id: str, query: str, conversation_buffer: str = "") -> AgentGraphState:
+    async def run(
+        self,
+        chat_id: str,
+        query: str,
+        conversation_buffer: str = "",
+        provider: str | None = None,
+        model: str | None = None,
+    ) -> AgentGraphState:
         compressed_context = conversation_buffer
         if conversation_buffer:
             compressed_context = self.context_engineering._compress(conversation_buffer, "")
         initial_state: AgentGraphState = {
             "chat_id": chat_id,
             "query": query,
+            "provider": provider or "",
+            "model": model or "",
             "conversation_buffer": compressed_context,
         }
         self.logger.info("Starting research workflow for chat_id=%s query=%s", chat_id, query[:120])
